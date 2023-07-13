@@ -1,0 +1,46 @@
+# Compiled class file
+*.class
+
+# Log files
+logs/
+*.log
+
+# IntelliJ IDEA files
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Eclipse files
+.classpath
+.project
+.settings/
+target/
+
+# Maven files
+target/
+
+# Gradle files
+.gradle/
+build/
+
+# Spring Boot files
+spring-boot-starter-parent.iml
+
+# macOS files
+.DS_Store
+
+# Windows thumbnail cache files
+Thumbs.db
+
+# Application properties file
+/src/main/resources/application.properties
+/src/main/recources/application.yml
+
+# Dependency lock files
+**/*.lock
+
+# Compiled bytecode
+/target/
+/bin/
