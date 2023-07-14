@@ -8,5 +8,6 @@ import uz.pdp.userservice.model.VerificationCode;
 
 @Repository
 public interface VerificationCodeRepo extends JpaRepository<VerificationCode, AbsEntity> {
-    void deleteAllByUser(User user);
+
+    void deleteByUser(User user);
 }

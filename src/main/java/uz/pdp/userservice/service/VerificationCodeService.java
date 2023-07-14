@@ -29,7 +29,7 @@ public class VerificationCodeService {
 
     public VerificationCode generateVerificationCode(User user) {
         if (user.getVerificationCode() != null) {
-            verificationCodeRepo.deleteAllByUser(user);
+            verificationCodeRepo.deleteByUser(user);
         }
         VerificationCode verificationCode = new VerificationCode(
                 user,
@@ -54,7 +54,7 @@ public class VerificationCodeService {
         if (verificationCode.isUsed() || verificationCode.isExpired()) {
             throw new BadRequestDetailsException("Verification code expired");
         }
-        if (!verificationCode.getExpiredDate().isBefore(LocalDateTime.now())) {
+        if (verificationCode.getExpiredDate().isBefore(LocalDateTime.now())) {
             verificationCode.setExpired(true);
             verificationCodeRepo.save(verificationCode);
             throw new BadRequestDetailsException("Verification code expired");
