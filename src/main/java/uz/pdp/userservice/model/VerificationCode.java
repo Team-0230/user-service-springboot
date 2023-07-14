@@ -34,7 +34,8 @@ public class VerificationCode extends AbsEntity {
     boolean blocked;
     @Column
     LocalDateTime resendDate;
-
+    @Column
+    LocalDateTime requestLimitDate;
     public VerificationCode(User user, String code, LocalDateTime expiredDate, LocalDateTime resendDate) {
         this.user = user;
         this.code = code;

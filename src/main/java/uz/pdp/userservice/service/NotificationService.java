@@ -14,8 +14,8 @@ import uz.pdp.userservice.service.mapper.ObjectToJsonMapper;
 public class NotificationService {
     private final ObjectToJsonMapper objectToJsonMapper;
 
-//    @Value("${services.notification-url}")
-    private String notificationServiceUrl = "http://localhost:8082";
+    @Value("${services.notification-url}")
+    private String notificationServiceUrl; //= "http://localhost:8082";
 
     public void sendSimpleEmail(SendEMailDTO sendEMailDTO) {
         ResponseEntity<ApiResponse> response = sendEmail(sendEMailDTO, "/send-simple-email");

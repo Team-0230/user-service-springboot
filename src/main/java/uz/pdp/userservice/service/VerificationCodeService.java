@@ -12,6 +12,7 @@ import uz.pdp.userservice.payload.SendEMailDTO;
 import uz.pdp.userservice.repository.VerificationCodeRepo;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Random;
 
 @Service
@@ -28,6 +29,8 @@ public class VerificationCodeService {
     private int verificationCodeResendDuration;
     @Value("${auth.verification-code.request-limit}")
     private int verificationCodeRequestLimit;
+    @Value("${auth.verification-code.request-limit-duration}")
+    private int verificationCodeRequestLimitDuration;
 
     public VerificationCode generateVerificationCode(User user) {
         if (user.getVerificationCode() != null) {
@@ -66,9 +69,17 @@ public class VerificationCodeService {
             throw new BadRequestDetailsException("Verification code blocked");
         }
         if (verificationCode.getCountRequest() >= verificationCodeRequestLimit) {
-            verificationCode.setBlocked(true);
+            if (Objects.isNull(verificationCode.getRequestLimitDate())) {
+                verificationCode.setRequestLimitDate(LocalDateTime.now().plusSeconds(verificationCodeRequestLimitDuration));
+            }
+            if (verificationCode.getRequestLimitDate().isAfter(LocalDateTime.now())) {
+                verificationCode.setBlocked(true);
+                verificationCodeRepo.save(verificationCode);
+                throw new BadRequestDetailsException("Verification code blocked");
+            }
+            verificationCode.setRequestLimitDate(null);
+            verificationCode.setCountRequest(0);
             verificationCodeRepo.save(verificationCode);
-            throw new BadRequestDetailsException("Verification code blocked");
         }
         verificationCode.setCountRequest(verificationCode.getCountRequest() + 1);
         verificationCodeRepo.save(verificationCode);

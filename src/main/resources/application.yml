@@ -15,18 +15,21 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 services:
-  notification-url: http://NOTIFICATION-SERVICE/
+  notification-url: http://NOTIFICATION-SERVICE/notification
 
 
 eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
 
 auth:
   verification-code:
     validity-duration: 300 # 5 minutes
     length: 4
     resend-duration: 60 # 1 minute
-    request-limit: 3
+    request-limit: 5
+    request-limit-duration: 300 # 5 minute
 
