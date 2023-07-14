@@ -1,9 +1,11 @@
 package uz.pdp.userservice.service;
 
 import lombok.RequiredArgsConstructor;
+import org.bouncycastle.asn1.cms.OtherRecipientInfo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.IThrottledTemplateProcessor;
 import uz.pdp.userservice.exception.BadRequestDetailsException;
 import uz.pdp.userservice.exception.ResourceNotFoundException;
 import uz.pdp.userservice.model.User;
@@ -13,6 +15,7 @@ import uz.pdp.userservice.repository.UserRepository;
 import uz.pdp.userservice.service.mapper.RegisterDTOMapper;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -72,7 +75,10 @@ public class AuthService {
     }
 
     public ResponseEntity<ApiResponse> login(LoginDTO loginDTO) {
+        User user = userRepository
+                .findUserByEmailAndPassword(loginDTO.email(), loginDTO.password())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        return null;
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK, true, "success", user));
     }
 }
