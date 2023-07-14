@@ -13,6 +13,8 @@ import uz.pdp.userservice.payload.*;
 import uz.pdp.userservice.repository.UserRepository;
 import uz.pdp.userservice.service.mapper.RegisterDTOMapper;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -62,7 +64,20 @@ public class AuthService {
         if (user.isVerifiedEmail()) {
             throw new BadRequestDetailsException("Email already verified");
         }
-        VerificationCode verificationCode = verificationCodeService.generateVerificationCode(user);
+        VerificationCode verificationCode = user.getVerificationCode();
+        if (!Objects.isNull(verificationCode)) {
+
+            if (verificationCode.getResendDate().isBefore(LocalDateTime.now())) {
+                verificationCodeService.deleteVerificationCode(verificationCode);
+            } else {
+                throw new BadRequestDetailsException(
+                        "To resend verification code, please wait %s seconds"
+                                .formatted(LocalDateTime
+                                        .now().until(verificationCode.getResendDate(), ChronoUnit.SECONDS)
+                ));
+            }
+        }
+        verificationCode = verificationCodeService.generateVerificationCode(user);
 
         SendEMailDTO mailDTO = verificationCodeService.generateVerificationEmail(user, verificationCode);
         notificationService.sendSimpleEmail(mailDTO);

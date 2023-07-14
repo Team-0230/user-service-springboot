@@ -3,6 +3,7 @@ package uz.pdp.userservice.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uz.pdp.userservice.exception.BadRequestDetailsException;
 import uz.pdp.userservice.model.User;
 import uz.pdp.userservice.model.VerificationCode;
@@ -15,6 +16,7 @@ import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class VerificationCodeService {
     private final VerificationCodeRepo verificationCodeRepo;
 
@@ -34,7 +36,8 @@ public class VerificationCodeService {
         VerificationCode verificationCode = new VerificationCode(
                 user,
                 generateNumericPassword(verificationCodeLength),
-                LocalDateTime.now().plusSeconds(verificationCodeValidityDuration)
+                LocalDateTime.now().plusSeconds(verificationCodeValidityDuration),
+                LocalDateTime.now().plusSeconds(verificationCodeResendDuration)
         );
         verificationCode = verificationCodeRepo.save(verificationCode);
         return verificationCode;
@@ -93,5 +96,9 @@ public class VerificationCodeService {
                                 user.getEmail()
                         )
                 ));
+    }
+
+    public void deleteVerificationCode(VerificationCode verificationCode) {
+        verificationCodeRepo.delete(verificationCode);
     }
 }

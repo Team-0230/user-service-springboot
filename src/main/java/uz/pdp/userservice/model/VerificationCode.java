@@ -32,11 +32,14 @@ public class VerificationCode extends AbsEntity {
     int countRequest;
     @Column(nullable = false)
     boolean blocked;
+    @Column
+    LocalDateTime resendDate;
 
-    public VerificationCode(User user, String code, LocalDateTime expiredDate) {
+    public VerificationCode(User user, String code, LocalDateTime expiredDate, LocalDateTime resendDate) {
         this.user = user;
         this.code = code;
         this.expiredDate = expiredDate;
+        this.resendDate = resendDate;
         this.expired = false;
         this.used = false;
         this.countRequest = 0;
