@@ -8,11 +8,13 @@ import uz.pdp.userservice.exception.BadRequestDetailsException;
 import uz.pdp.userservice.exception.ResourceNotFoundException;
 import uz.pdp.userservice.model.User;
 import uz.pdp.userservice.model.VerificationCode;
+import uz.pdp.userservice.model.enums.PermissionEnum;
 import uz.pdp.userservice.payload.*;
 import uz.pdp.userservice.repository.UserRepository;
 import uz.pdp.userservice.service.mapper.RegisterDTOMapper;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +29,7 @@ public class AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
-    public ResponseEntity<ApiResponse> register(RegisterDTO registerDTO) {
+    public ApiResponse register(RegisterDTO registerDTO) {
         if (!Objects.equals(registerDTO.password(), registerDTO.confirmPassword())) {
             throw new BadRequestDetailsException("Passwords do not match");
         }
@@ -41,11 +43,10 @@ public class AuthService {
         SendEMailDTO eMailDTO = verificationCodeService.generateVerificationEmail(user, verificationCode);
         notificationService.sendSimpleEmail(eMailDTO);
 
-        return ResponseEntity
-                .ok(new ApiResponse(HttpStatus.OK, true, "Verification code sent to your email"));
+        return new ApiResponse(HttpStatus.OK, true, "Verification code sent to your email");
     }
 
-    public ResponseEntity<ApiResponse> verifyEmail(String email, EmailVerificationDTO emailVerificationDTO) {
+    public ApiResponse verifyEmail(String email, EmailVerificationDTO emailVerificationDTO) {
         User user = getUserByEmail(email);
         if (user.isVerifiedEmail() || user.getVerificationCode() == null) {
             throw new BadRequestDetailsException("Email already verified");
@@ -53,11 +54,10 @@ public class AuthService {
         VerificationCode verificationCode = user.getVerificationCode();
         verificationCodeService.checkVerificationCode(verificationCode, emailVerificationDTO);
         user.setVerifiedEmail(true);
-        return ResponseEntity
-                .ok(new ApiResponse(HttpStatus.OK, true, "Email verified"));
+        return new ApiResponse(HttpStatus.OK, true, "Email verified");
     }
 
-    public ResponseEntity<ApiResponse> getVerificationCode(String email) {
+    public ApiResponse getVerificationCode(String email) {
         User user = getUserByEmail(email);
         if (user.isVerifiedEmail()) {
             throw new BadRequestDetailsException("Email already verified");
@@ -67,12 +67,41 @@ public class AuthService {
         SendEMailDTO mailDTO = verificationCodeService.generateVerificationEmail(user, verificationCode);
         notificationService.sendSimpleEmail(mailDTO);
 
-        return ResponseEntity
-                .ok(new ApiResponse(HttpStatus.OK, true, "Verification code sent to your email"));
+        return new ApiResponse(HttpStatus.OK, true, "Verification code sent to your email");
     }
 
-    public ResponseEntity<ApiResponse> login(LoginDTO loginDTO) {
-
+    public ApiResponse login(LoginDTO loginDTO) {
         return null;
+    }
+
+    public ApiResponse getResetPassword(String email) {
+        User user = getUserByEmail(email);
+        if (!user.isVerifiedEmail()) {
+            throw new BadRequestDetailsException("Email not verified");
+        }
+        UUID resetPassword = UUID.randomUUID();
+        user.setResetPasswordCode(resetPassword);
+
+        String msg = "To reset your password, please click the link below:\n" +
+                "http://localhost:8080/user/auth/reset-password/%s".formatted(resetPassword);
+        notificationService.sendSimpleEmail(new SendEMailDTO(email, "Reset password", msg));
+
+        return new ApiResponse(HttpStatus.OK, true, "Reset password link sent to your email");
+    }
+
+    public ApiResponse resetPassword(String code, ResetPasswordDTO resetPasswordDTO) {
+        User user = userRepository.getUserByResetPasswordCode(UUID.fromString(code))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if (!Objects.equals(resetPasswordDTO.password(), resetPasswordDTO.confirmPassword())) {
+            throw new BadRequestDetailsException("Passwords do not match");
+        }
+        user.setPassword(resetPasswordDTO.password());
+        user.setResetPasswordCode(null);
+        userRepository.save(user);
+        return new ApiResponse(HttpStatus.OK, true, "Password reset successfully");
+    }
+
+    public ApiResponse getPermissions() {
+        return new ApiResponse(HttpStatus.OK, true, "success", PermissionEnum.values());
     }
 }

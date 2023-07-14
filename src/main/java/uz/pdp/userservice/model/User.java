@@ -7,7 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.UUID;
 
 @Entity
 @EqualsAndHashCode(callSuper = true)
@@ -29,6 +29,8 @@ public class User extends AbsUUIDEntity implements UserDetails {
     Role role;
     @OneToOne(fetch = FetchType.LAZY, targetEntity = VerificationCode.class, mappedBy = "user", cascade = CascadeType.ALL)
     VerificationCode verificationCode;
+    @Column
+    UUID resetPasswordCode;
     boolean verifiedEmail;
     boolean accountNonExpired;
     boolean accountNonLocked;
