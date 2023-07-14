@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VerificationCode extends AbsEntity {
     @OneToOne
-    @Column(nullable = false)
     User user;
     @Column(nullable = false)
     String code;

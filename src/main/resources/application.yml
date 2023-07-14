@@ -15,7 +15,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 services:
-  notification-url: http://NOTIFICATION-SERVICE/notification
+  notification-url: http://NOTIFICATION-SERVICE/
 
 
 eureka:

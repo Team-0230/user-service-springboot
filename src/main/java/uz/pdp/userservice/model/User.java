@@ -27,7 +27,7 @@ public class User extends AbsUUIDEntity implements UserDetails {
     String password;
     @ManyToOne(optional = false)
     Role role;
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = VerificationCode.class, mappedBy = "parentTask", cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = VerificationCode.class, mappedBy = "user", cascade = CascadeType.ALL)
     VerificationCode verificationCode;
     boolean verifiedEmail;
     boolean accountNonExpired;

@@ -28,7 +28,7 @@ public class AuthService {
     }
 
     public ResponseEntity<ApiResponse> register(RegisterDTO registerDTO) {
-        if (Objects.equals(registerDTO.password(), registerDTO.confirmPassword())) {
+        if (!Objects.equals(registerDTO.password(), registerDTO.confirmPassword())) {
             throw new BadRequestDetailsException("Passwords do not match");
         }
         if (userRepository.existsByEmail(registerDTO.email())) {

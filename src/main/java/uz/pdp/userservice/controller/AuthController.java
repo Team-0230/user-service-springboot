@@ -11,7 +11,8 @@ import uz.pdp.userservice.payload.RegisterDTO;
 import uz.pdp.userservice.service.AuthService;
 import uz.pdp.userservice.utils.AppConstants;
 
-@RestController(AuthController.BASE_URL)
+@RestController
+@RequestMapping(AuthController.BASE_URL)
 @RequiredArgsConstructor
 public class AuthController {
     public static final String BASE_URL = "/auth";
@@ -19,6 +20,8 @@ public class AuthController {
     public static final String REGISTER_URL = "/register";
     public static final String VERIFY_EMAIL_URL = "/verify-email/{email}";
     public static final String GET_VERIFICATION_URL = "/get-verification/{email}";
+    public static final String GET_PERMISSIONS_URL = "/get-permissions";
+
     private final AuthService authService;
 
     @PostMapping(REGISTER_URL)
